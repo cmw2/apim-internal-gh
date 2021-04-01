@@ -13,8 +13,8 @@ steps:
 # - task: AzureResourceManagerTemplateDeployment@3
 #   inputs:
 #     deploymentScope: 'Resource Group'
-#     azureResourceManagerConnection: 'Chris Westbrook Internal Subscription'
-#     subscriptionId: '6f4fe300-6d89-4272-8aa9-223e28d46391'
+#     azureResourceManagerConnection: <<your service connection name>>
+#     subscriptionId: '<<yoursubid>>'
 #     action: 'Create Or Update Resource Group'
 #     resourceGroupName: 'rg-apiint-dev-eastus'
 #     location: 'East US'

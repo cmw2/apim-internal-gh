@@ -25,7 +25,7 @@ stages:
       displayName: 'Deploy to Test APIM'
       environment: 'apim-internal-test'
       variables:
-        azSubId: 6f4fe300-6d89-4272-8aa9-223e28d46391
+        azSubId: <<yoursubid>>
         rgName: rg-apiint-test-eastus
         location: East US
         stgAccountName: stgcmwapiinttesteastus
@@ -46,7 +46,7 @@ stages:
               name: AzureFileCopy
               inputs:
                 SourcePath: '$(Pipeline.Workspace)/ci/arm/'
-                azureSubscription: 'Chris Westbrook Internal Subscription'
+                azureSubscription: '<<your service connection name>>'
                 Destination: 'AzureBlob'
                 storage: '$(stgAccountName)'
                 ContainerName: '$(stgContainerName)'
@@ -56,7 +56,7 @@ stages:
               displayName: Deploy Azure Templates in Test
               inputs:
                 deploymentScope: 'Resource Group'
-                azureResourceManagerConnection: Chris Westbrook Internal Subscription
+                azureResourceManagerConnection: <<your service connection name>>
                 subscriptionId: $(azSubId)
                 action: 'Create Or Update Resource Group'
                 resourceGroupName: $(rgName)
@@ -86,7 +86,7 @@ stages:
       displayName: 'Deploy to Prod APIM'
       environment: 'apim-internal-prod'
       variables:
-        azSubId: 6f4fe300-6d89-4272-8aa9-223e28d46391
+        azSubId: <<yoursubid>>
         rgName: rg-apiint-prod-eastus
         location: East US
         stgAccountName: stgcmwapiintprodeastus
@@ -105,7 +105,7 @@ stages:
               name: AzureFileCopy
               inputs:
                 SourcePath: '$(Pipeline.Workspace)/ci/arm/'
-                azureSubscription: 'Chris Westbrook Internal Subscription'
+                azureSubscription: <<your service connection name>>
                 Destination: 'AzureBlob'
                 storage: '$(stgAccountName)'
                 ContainerName: '$(stgContainerName)'
@@ -115,7 +115,7 @@ stages:
               displayName: Deploy Azure Templates in Prod
               inputs:
                 deploymentScope: 'Resource Group'
-                azureResourceManagerConnection: Chris Westbrook Internal Subscription
+                azureResourceManagerConnection: <<your service connection name>>
                 subscriptionId: $(azSubId)
                 action: 'Create Or Update Resource Group'
                 resourceGroupName: $(rgName)
