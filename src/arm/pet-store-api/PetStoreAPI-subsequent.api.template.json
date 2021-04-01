@@ -1,0 +1,69 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApimServiceName": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "properties": {
+        "authenticationSettings": {
+          "subscriptionKeyRequired": false
+        },
+        "apiVersion": "v1",
+        "isCurrent": false,
+        "apiVersionDescription": "First version",
+        "apiVersionSetId": "[resourceId('Microsoft.ApiManagement/service/apiVersionSets', parameters('ApimServiceName'), 'PetStoreVersionSet')]",
+        "subscriptionRequired": false,
+        "displayName": "PetStoreAPI",
+        "serviceUrl": "https://petstore.swagger.io/v2/",
+        "path": "PetStoreAPIPet",
+        "protocols": [
+          "https"
+        ]
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/PetStoreAPI')]",
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2019-01-01",
+      "dependsOn": []
+    },
+    {
+      "properties": {
+        "value": "<policies>\r\n  <inbound>\r\n    <base />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <set-header name=\"X-Powered-By\" exists-action=\"delete\" />\r\n    <set-header name=\"X-AspNet-Version\" exists-action=\"delete\" />\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+        "format": "rawxml"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/PetStoreAPI/policy')]",
+      "type": "Microsoft.ApiManagement/service/apis/policies",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'PetStoreAPI')]"
+      ]
+    },
+    {
+      "properties": {
+        "value": "<policies>\r\n  <inbound>\r\n    <rate-limit-by-key calls=\"3\" renewal-period=\"15\" counter-key=\"@(context.Subscription.Id)\" />\r\n    <base />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+        "format": "rawxml"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/PetStoreAPI/addPet/policy')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'PetStoreAPI')]"
+      ]
+    },
+    {
+      "properties": {
+        "value": "<policies>\r\n  <inbound>\r\n    <rate-limit-by-key calls=\"3\" renewal-period=\"15\" counter-key=\"@(context.Subscription.Id)\" />\r\n    <base />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+        "format": "rawxml"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/PetStoreAPI/deletePet/policy')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'PetStoreAPI')]"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApimServiceName": {
+      "type": "string"
+    },
+    "PolicyXMLBaseUrl": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "properties": {},
+      "name": "[concat(parameters('ApimServiceName'), '/cmwms-product/demo-conference-api-v1;rev=2')]",
+      "type": "Microsoft.ApiManagement/service/products/apis",
+      "apiVersion": "2019-01-01",
+      "dependsOn": []
+    },
+    {
+      "properties": {},
+      "name": "[concat(parameters('ApimServiceName'), '/starter/demo-conference-api-v1;rev=2')]",
+      "type": "Microsoft.ApiManagement/service/products/apis",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/products/apis', parameters('ApimServiceName'), 'cmwms-product', 'demo-conference-api-v1;rev=2')]"
+      ]
+    },
+    {
+      "properties": {},
+      "name": "[concat(parameters('ApimServiceName'), '/unlimited/demo-conference-api-v1;rev=2')]",
+      "type": "Microsoft.ApiManagement/service/products/apis",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/products/apis', parameters('ApimServiceName'), 'starter', 'demo-conference-api-v1;rev=2')]"
+      ]
+    }
+  ]
+}

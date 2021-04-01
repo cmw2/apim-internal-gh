@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "apimName": {
+            "value": "apim-internal-dev-eastus"
+        },
+        "publisherEmail": {
+            "value": "chwestbr@microsoft.com"
+        },
+        "publisherName": {
+            "value": "CMWMS"
+        },
+        "sku": {
+            "value": "Developer"
+        },
+        "skuCount": {
+            "value": "1"
+        },
+        "location": {
+            "value": "eastus"
+        },
+        "containerSasToken": {
+            "value": "missing"
+        },
+        "PolicyXMLBaseUrl": {
+            "value": "https://stgcmwapiinttesteastus.blob.core.windows.net/apimarmtemplates/arm"
+        }
+    }
+}

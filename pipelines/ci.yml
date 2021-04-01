@@ -1,0 +1,45 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+# - task: AzureResourceManagerTemplateDeployment@3
+#   inputs:
+#     deploymentScope: 'Resource Group'
+#     azureResourceManagerConnection: 'Chris Westbrook Internal Subscription'
+#     subscriptionId: '6f4fe300-6d89-4272-8aa9-223e28d46391'
+#     action: 'Create Or Update Resource Group'
+#     resourceGroupName: 'rg-apiint-dev-eastus'
+#     location: 'East US'
+#     templateLocation: 'Linked artifact'
+#     csmFile: 'src/arm/cmwms.apim-internal.main.template.json'
+#     csmParametersFile: 'src/arm/cmwms.apim-internal.main.template.parameters.json'
+#     overrideParameters: '-apimName apim-internal-dev-eastus'
+#     deploymentMode: 'Validation'
+
+- task: DotNetCoreCLI@2
+  displayName: Build Test Project
+  inputs:
+    command: build
+    projects: 'src/apim-internal.Tests/apim-internal.Tests.csproj'
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish ARM Templates
+  inputs:
+    PathtoPublish: 'src/arm'
+    ArtifactName: 'arm'
+    publishLocation: 'Container'
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish Integration Tests
+  inputs:
+    PathtoPublish: 'src/apim-internal.Tests'
+    ArtifactName: 'tests'
+    publishLocation: 'Container'    

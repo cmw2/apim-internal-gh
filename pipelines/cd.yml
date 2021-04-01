@@ -1,0 +1,127 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+
+pool:
+  vmImage: windows-latest
+
+resources:
+ pipelines:
+   - pipeline: ci
+     source: apim-internal-ci
+     trigger: 
+      branches:
+        include: 
+        - main
+
+stages:
+- stage: Test
+  displayName: 'Test APIM Stage'
+  jobs:
+    - deployment: 
+      displayName: 'Deploy to Test APIM'
+      environment: 'apim-internal-test'
+      variables:
+        azSubId: 6f4fe300-6d89-4272-8aa9-223e28d46391
+        rgName: rg-apiint-test-eastus
+        location: East US
+        stgAccountName: stgcmwapiinttesteastus
+        stgContainerName: apimarmtemplates
+        apimName: apim-internal-test-eastus
+        DemoConfApiBaseUrl: https://apim-internal-test-eastus.azure-api.net/conference
+        #DemoConfApiSubscriptionKey-Test: secret variable -- see UI
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - download: ci
+              displayName: Download ARM Templates
+              artifact: arm
+
+            - task: AzureFileCopy@4
+              displayName: Copy ARM Templates to Test Storage
+              name: AzureFileCopy
+              inputs:
+                SourcePath: '$(Pipeline.Workspace)/ci/arm/'
+                azureSubscription: 'Chris Westbrook Internal Subscription'
+                Destination: 'AzureBlob'
+                storage: '$(stgAccountName)'
+                ContainerName: '$(stgContainerName)'
+                sasTokenTimeOutInMinutes: '60'
+
+            - task: AzureResourceManagerTemplateDeployment@3
+              displayName: Deploy Azure Templates in Test
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: Chris Westbrook Internal Subscription
+                subscriptionId: $(azSubId)
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: $(rgName)
+                location: $(location)
+                templateLocation: 'URL of the file'
+                csmFileLink: '$(AzureFileCopy.StorageContainerUri)arm/cmwms.apim-internal.main.template.json$(AzureFileCopy.StorageContainerSasToken)'
+                csmParametersFileLink: '$(AzureFileCopy.StorageContainerUri)arm/cmwms.apim-internal.main.template.parameters.json$(AzureFileCopy.StorageContainerSasToken)'
+                overrideParameters: '-apimName $(apimName) -containerSasToken $(AzureFileCopy.StorageContainerSasToken) -PolicyXMLBaseUrl $(AzureFileCopy.StorageContainerUri)arm'
+                deploymentMode: 'Incremental'
+
+            - download: ci
+              displayName: Download Integration Tests
+              artifact: tests
+
+            - task: DotNetCoreCLI@2
+              displayName: Run API Integration Tests
+              inputs:
+                command: 'test'
+                projects: '$(Pipeline.Workspace)/ci/tests/apim-internal.Tests.csproj'
+              env:
+                DemoConfApiSubscriptionKey: $(DemoConfApiSubscriptionKey-Test)
+
+- stage: Prod
+  displayName: 'Production APIM Stage'
+  jobs:
+    - deployment: 
+      displayName: 'Deploy to Prod APIM'
+      environment: 'apim-internal-prod'
+      variables:
+        azSubId: 6f4fe300-6d89-4272-8aa9-223e28d46391
+        rgName: rg-apiint-prod-eastus
+        location: East US
+        stgAccountName: stgcmwapiintprodeastus
+        stgContainerName: apimarmtemplates
+        apimName: apim-internal-prod-eastus
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - download: ci
+              displayName: Download ARM Templates
+              artifact: arm
+
+            - task: AzureFileCopy@4
+              displayName: Copy ARM Templates to Prod Storage
+              name: AzureFileCopy
+              inputs:
+                SourcePath: '$(Pipeline.Workspace)/ci/arm/'
+                azureSubscription: 'Chris Westbrook Internal Subscription'
+                Destination: 'AzureBlob'
+                storage: '$(stgAccountName)'
+                ContainerName: '$(stgContainerName)'
+                sasTokenTimeOutInMinutes: '60'
+
+            - task: AzureResourceManagerTemplateDeployment@3
+              displayName: Deploy Azure Templates in Prod
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: Chris Westbrook Internal Subscription
+                subscriptionId: $(azSubId)
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: $(rgName)
+                location: $(location)
+                templateLocation: 'URL of the file'
+                csmFileLink: '$(AzureFileCopy.StorageContainerUri)arm/cmwms.apim-internal.main.template.json$(AzureFileCopy.StorageContainerSasToken)'
+                csmParametersFileLink: '$(AzureFileCopy.StorageContainerUri)arm/cmwms.apim-internal.main.template.parameters.json$(AzureFileCopy.StorageContainerSasToken)'
+                overrideParameters: '-apimName $(apimName) -containerSasToken $(AzureFileCopy.StorageContainerSasToken) -PolicyXMLBaseUrl $(AzureFileCopy.StorageContainerUri)arm'
+                deploymentMode: 'Incremental'

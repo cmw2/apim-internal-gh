@@ -1,0 +1,132 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApimServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the API Management"
+      }
+    },
+    "PolicyXMLBaseUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Base URL of the repository that contains the generated policy files"
+      }
+    }
+  },
+  "resources": [
+    {
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "relativePath": "apim-internal-dev-eastus-globalServicePolicy.template.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "ApimServiceName": {
+            "value": "[parameters('ApimServiceName')]"
+          },
+          "PolicyXMLBaseUrl": {
+            "value": "[parameters('PolicyXMLBaseUrl')]"
+          }
+        }
+      },
+      "name": "globalServicePolicyTemplate",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "dependsOn": []
+    },
+    {
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "relativePath": "apim-internal-dev-eastus-apiVersionSets.template.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "ApimServiceName": {
+            "value": "[parameters('ApimServiceName')]"
+          },
+          "PolicyXMLBaseUrl": {
+            "value": "[parameters('PolicyXMLBaseUrl')]"
+          }
+        }
+      },
+      "name": "versionSetTemplate",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "dependsOn": []
+    },
+    {
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "relativePath": "apim-internal-dev-eastus-products.template.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "ApimServiceName": {
+            "value": "[parameters('ApimServiceName')]"
+          },
+          "PolicyXMLBaseUrl": {
+            "value": "[parameters('PolicyXMLBaseUrl')]"
+          }
+        }
+      },
+      "name": "productsTemplate",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "dependsOn": []
+    },
+    {
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "relativePath": "apim-internal-dev-eastus-demo-conference-api-v1;rev=4-api.template.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "ApimServiceName": {
+            "value": "[parameters('ApimServiceName')]"
+          },
+          "PolicyXMLBaseUrl": {
+            "value": "[parameters('PolicyXMLBaseUrl')]"
+          }
+        }
+      },
+      "name": "apisTemplate",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'globalServicePolicyTemplate')]",
+        "[resourceId('Microsoft.Resources/deployments', 'versionSetTemplate')]",
+        "[resourceId('Microsoft.Resources/deployments', 'productsTemplate')]"
+      ]
+    },
+    {
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "relativePath": "apim-internal-dev-eastus-productAPIs.template.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "ApimServiceName": {
+            "value": "[parameters('ApimServiceName')]"
+          },
+          "PolicyXMLBaseUrl": {
+            "value": "[parameters('PolicyXMLBaseUrl')]"
+          }
+        }
+      },
+      "name": "productAPIsTemplate",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'productsTemplate')]",
+        "[resourceId('Microsoft.Resources/deployments', 'apisTemplate')]"
+      ]
+    }
+  ]
+}

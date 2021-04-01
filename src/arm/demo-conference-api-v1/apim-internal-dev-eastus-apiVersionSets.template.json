@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApimServiceName": {
+      "type": "string"
+    },
+    "PolicyXMLBaseUrl": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "properties": {
+        "displayName": "Demo Conference API",
+        "versioningScheme": "Segment"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/6064e700171d9256d405b249')]",
+      "type": "Microsoft.ApiManagement/service/apiVersionSets",
+      "apiVersion": "2019-01-01"
+    }
+  ]
+}
